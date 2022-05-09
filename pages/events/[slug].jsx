@@ -1,9 +1,10 @@
-import React from 'react'
-import { useRouter } from 'next/router'
+import Layout from "../../components/Layout"
 
 const EventPage = () => {
   return (
-    <div>EventPage</div>
+    <Layout title='Event'>
+      <h1>Event Page</h1>
+    </Layout>
   )
 }
 

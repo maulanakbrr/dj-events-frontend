@@ -1,15 +1,10 @@
-import React from 'react'
-import Link from 'next/link'
+import Layout from "../../components/Layout"
 
 const EventsPage = () => {
   return (
-    <>
-        <div>
-          <Link href='/'>Home</Link>
-          <Link href='/about'>About</Link>
-        </div>
-        <h2>My Events</h2>
-    </>
+    <Layout title='Events'>
+        <h1>My Events</h1>
+    </Layout>
   )
 }
 
