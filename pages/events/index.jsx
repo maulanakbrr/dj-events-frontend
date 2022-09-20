@@ -12,19 +12,20 @@ export default function EventsPage(props) {
       { events.length === 0 && <h3>There is no event show</h3> }
 
       { events.map((evt) => ( 
-        <EventItem key={evt.id} evt={evt}/>
+        <EventItem key={evt.slug} evt={evt}/>
       ))}
     </Layout>
   )
 }
 
 export const getServerSideProps = async () => {
-  const res = await fetch(`${API_URL}/api/events`)
-  const events = await res.json()
-
-  console.log(events)
+  const res = await fetch(`${API_URL}/api/events?[populate]=*&sort=date:DESC`)
+  const event = await res.json()
+  const events = event?.data?.map(item => item.attributes)
+  
+  console.log('EVENTT:: ', event)
 
   return {
-    props: {events}
+    props: {events: events}
   }
 }

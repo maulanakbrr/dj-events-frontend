@@ -4,16 +4,18 @@ import EventItem from "@/components/EventItem"
 import { API_URL } from "@/config/index"
 
 export default function HomePage(props) {
-  const { events } = props
+  const { events, message } = props
+  // const newEvents = events.map(item => item.attributes)
+  console.log(events)
 
   return (
     <Layout>
       <h1>Upcoming Events</h1>
 
-      { events.length === 0 && <h3>There is no event show</h3> }
+      { events.length === 0 && <h3>There is no event show{ message && ', please try again later.'}</h3> }
 
       { events.map((evt) => ( 
-        <EventItem key={evt.id} evt={evt}/>
+        <EventItem key={evt.slug} evt={evt}/>
       ))}
 
       {
@@ -28,12 +30,23 @@ export default function HomePage(props) {
 }
 
 export const getServerSideProps = async () => {
-  const res = await fetch(`${API_URL}/api/events`)
-  const events = await res.json()
-
-  console.log(events)
-
-  return {
-    props: { events: events.slice(0,3)}
+  try {
+    const res = await fetch(`${API_URL}/api/events?[populate]=*&sort=date:ASC&pagination[limit]=3`)
+    const evtRes = await res.json()
+    const events = await evtRes.data.map(item => item.attributes)
+  
+    console.log('loop events:: ', evtRes)
+  
+    return {
+      props: { events: events }
+    }
+  } catch (err) {
+    console.log('ERRO:: ', err)
+    return {
+      props: { 
+        events: [],
+        message: 'failed to fetch' 
+      }
+    }
   }
 }
