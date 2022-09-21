@@ -33,7 +33,7 @@ const EventPage = ({evt}) => {
     <Layout title='Event'>
       <div className={styles.event}>
         <div className={styles.controls}>
-          <Link href={`events/edit/${evt.id}`}>
+          <Link href={`/events/edit/${id}`}>
             <a>
               <FaPencilAlt/> Edit Event
             </a>
@@ -80,7 +80,6 @@ const EventPage = ({evt}) => {
 export async function getServerSideProps({query: {slug}}) {
   const res = await fetch(`${API_URL}/api/events?[populate]=*&filters[slug]=${slug}`)
   const events = await res.json()
-  console.log('JADI: ', events)
 
   return {
     props: {
