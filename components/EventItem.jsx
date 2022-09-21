@@ -7,7 +7,7 @@ const EventItem = ({evt}) => {
     <div className={styles.event}>
       <div className={styles.img}>
         <Image 
-          src={evt.image ? evt.image.data.attributes.formats.thumbnail.url : '/images/event-default.png'} 
+          src={evt?.image?.data?.attributes ? evt.image.data.attributes.formats.thumbnail.url : '/images/event-default.png'} 
           alt={evt.slug ? evt.slug : 'default-image'}
           width={170}
           height={100}

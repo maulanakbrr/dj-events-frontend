@@ -1,14 +1,33 @@
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { FaPencilAlt, FaTimes } from 'react-icons/fa'
 import Link from 'next/link'
 import Image from 'next/image'
 import Layout from "@/components/Layout"
 import { API_URL } from "@/config/index"
 import styles from '@/styles/Event.module.scss'
+import { useRouter } from 'next/router';
 
 const EventPage = ({evt}) => {
-  const deleteEvent = () => {
-    console.log('delete')
+  const { id, attributes } = evt
+  const router = useRouter()
+
+  const deleteEvent = async () => {
+    if (confirm('Are you sure')){
+      const res = await fetch(`${API_URL}/api/events/${id}`, {
+        method: "DELETE"
+      })
+
+      const data = await res.json()
+
+      if(!res.ok){
+        toast.error(data.message)
+      } else {
+        router.push('/events')
+      }
+    }
   }
+
 
   return (
     <Layout title='Event'>
@@ -25,26 +44,28 @@ const EventPage = ({evt}) => {
           </a>
         </div>
 
+        <ToastContainer/>
+
         <span>
-          {new Date(evt.date).toLocaleString('id-ID')} at {evt.time}
+          {new Date(attributes.date).toLocaleString('id-ID')} at {attributes.time}
         </span>
-        <h1>{evt.name}</h1>
+        <h1>{attributes.name}</h1>
         {
-          evt.image && (
+          attributes.image && (
             <div className={styles.image}>
-              <Image src={evt.image.data.attributes.formats.large.url} width={960} height={600}/>
+              <Image src={attributes?.image?.data?.attributes?.formats ? attributes?.image?.data?.attributes?.formats?.large.url : '/images/event-default.png'} width={960} height={600}/>
             </div>
           )
         }
 
         <h3>Performers: </h3>
-        <p>{evt.performers}</p>
+        <p>{attributes.performers}</p>
 
         <h3>Description: </h3>
-        <p>{evt.description}</p>
+        <p>{attributes.description}</p>
 
-        <h3>Venue: {evt.venue}</h3>
-        <p>{evt.address}</p>
+        <h3>Venue: {attributes.venue}</h3>
+        <p>{attributes.address}</p>
 
         <Link href="/events">
           <a className={styles.back}>
@@ -59,10 +80,11 @@ const EventPage = ({evt}) => {
 export async function getServerSideProps({query: {slug}}) {
   const res = await fetch(`${API_URL}/api/events?[populate]=*&filters[slug]=${slug}`)
   const events = await res.json()
+  console.log('JADI: ', events)
 
   return {
     props: {
-      evt: events.data[0].attributes
+      evt: events.data[0]
     }
   }
 } 
