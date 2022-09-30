@@ -2,13 +2,15 @@ import moment from 'moment';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaImage } from 'react-icons/fa';
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Image from 'next/image';
 import Link from "next/link"
 import Layout from "@/components/Layout"
+import Modal from "@/components/Modal"
+import ImageUpload from '@/components/ImageUpload';
 import { API_URL } from "@/config/index"
-import styles from '@/styles/AddForm.module.scss'
+import styles from '@/styles/Form.module.scss'
 
 const EditEventPage = ({evt}) => {
   const { id, attributes } = evt
@@ -22,8 +24,17 @@ const EditEventPage = ({evt}) => {
     description: attributes.description
   })
   const [imagePreview, setImagePreview] = useState(attributes?.image?.data?.attributes ? attributes?.image?.data?.attributes?.formats?.thumbnail?.url : null)
+  const [showModal, setShowModal] = useState(false)
 
   const router = useRouter()
+
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "auto"
+    }
+  }, [showModal])
 
   const handleSubmit = async e => {
     e.preventDefault()
@@ -57,6 +68,14 @@ const EditEventPage = ({evt}) => {
       ...data,
       [name]: value
     })
+  }
+
+  const imageUploaded = async (e) => {
+    console.log("image uploaded!")
+    const res = await fetch(`${API_URL}/api/events/${id}?[populate]=*`)
+    const event = await res.json()
+    setImagePreview(event?.data?.attributes?.image?.data?.attributes?.formats?.thumbnail?.url)
+    setShowModal(false)
   }
 
   return (
@@ -112,10 +131,15 @@ const EditEventPage = ({evt}) => {
       }
       
       <div>
-        <button className="btn-secondary">
+        <button className="btn-secondary" onClick={() => setShowModal(true)}>
           <FaImage/> Upload Image
         </button>
       </div>
+
+      <Modal show={showModal} onClose={() => setShowModal(false)}>
+        <ImageUpload eventId={id} imageUploaded={imageUploaded}/>
+      </Modal>
+
     </Layout>
   )
 }
