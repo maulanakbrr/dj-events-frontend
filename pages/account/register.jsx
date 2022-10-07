@@ -1,12 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 import { FaUser } from "react-icons/fa"
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Layout from "@/components/Layout";
 import Link from "next/link";
+import Layout from "@/components/Layout";
+import AuthContext from "@/context/AuthContext";
 import styles from '@/styles/AuthForm.module.scss'
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const RegisterPage = () => {
+  const { register, error } = useContext(AuthContext)
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,6 +21,8 @@ const RegisterPage = () => {
       toast.error("Password don't match!")
       return
     }
+
+    register({username, password, email})
   }
 
   return (
