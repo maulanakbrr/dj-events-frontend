@@ -6,13 +6,14 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Image from 'next/image';
 import Link from "next/link"
+import { parseCookies } from '@/helpers/index';
 import Layout from "@/components/Layout"
 import Modal from "@/components/Modal"
 import ImageUpload from '@/components/ImageUpload';
 import { API_URL } from "@/config/index"
 import styles from '@/styles/Form.module.scss'
 
-const EditEventPage = ({evt}) => {
+const EditEventPage = ({evt, token}) => {
   const { id, attributes } = evt
 
   const [data, setData] = useState({
@@ -49,12 +50,17 @@ const EditEventPage = ({evt}) => {
     const res = await fetch(`${API_URL}/api/events/${id}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({data: {...data}})
     })
 
     if (!res.ok){
+      if (res.status === 403 || res.status === 401){
+        toast.error("No token included")
+        return
+      }
       toast.error('Something went wrong')
     } else {
       const event = await res.json()
@@ -137,7 +143,7 @@ const EditEventPage = ({evt}) => {
       </div>
 
       <Modal show={showModal} onClose={() => setShowModal(false)}>
-        <ImageUpload eventId={id} imageUploaded={imageUploaded}/>
+        <ImageUpload eventId={id} imageUploaded={imageUploaded} token={token}/>
       </Modal>
 
     </Layout>
@@ -147,11 +153,12 @@ const EditEventPage = ({evt}) => {
 export async function getServerSideProps({params: {id}, req}) {
   const res = await fetch(`${API_URL}/api/events/${id}?[populate]=*`)
   const events = await res.json()
-  console.log(req.headers.cookie)
+  const { token } = parseCookies(req)
 
   return {
     props: {
-      evt: events.data
+      evt: events.data,
+      token
     }
   }
 } 

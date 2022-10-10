@@ -12,38 +12,10 @@ const EventPage = ({evt}) => {
   const { id, attributes } = evt
   const router = useRouter()
 
-  const deleteEvent = async () => {
-    if (confirm('Are you sure')){
-      const res = await fetch(`${API_URL}/api/events/${id}`, {
-        method: "DELETE"
-      })
-
-      const data = await res.json()
-
-      if(!res.ok){
-        toast.error(data.message)
-      } else {
-        router.push('/events')
-      }
-    }
-  }
-
-
   return (
     <Layout title='Event'>
       <div className={styles.event}>
-        <div className={styles.controls}>
-          <Link href={`/events/edit/${id}`}>
-            <a>
-              <FaPencilAlt/> Edit Event
-            </a>
-          </Link>
-
-          <a href='#' className={styles.delete} onClick={deleteEvent}>
-            <FaTimes/> Delete Event
-          </a>
-        </div>
-
+        
         <ToastContainer/>
 
         <span>
@@ -53,7 +25,7 @@ const EventPage = ({evt}) => {
         {
           attributes.image && (
             <div className={styles.image}>
-              <Image src={attributes?.image?.data?.attributes?.formats ? attributes?.image?.data?.attributes?.formats?.large.url : '/images/event-default.png'} width={960} height={600}/>
+              <Image src={attributes?.image?.data?.attributes?.formats ? attributes?.image?.data?.attributes?.formats?.large?.url || attributes?.image?.data?.attributes?.formats?.small?.url : '/images/event-default.png'} width={960} height={600}/>
             </div>
           )
         }

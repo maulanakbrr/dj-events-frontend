@@ -2,12 +2,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useState } from "react"
 import { useRouter } from "next/router"
+import { parseCookies } from '@/helpers/index';
 import Link from "next/link"
 import Layout from "@/components/Layout"
 import { API_URL } from "@/config/index"
 import styles from '@/styles/Form.module.scss'
 
-const AddEventPage = () => {
+const AddEventPage = ({token}) => {
   const [data, setData] = useState({
     name: '',
     performers: '',
@@ -19,6 +20,7 @@ const AddEventPage = () => {
   })
 
   const router = useRouter()
+  console.log('TOK', token)
 
   const handleSubmit = async e => {
     e.preventDefault()
@@ -30,19 +32,24 @@ const AddEventPage = () => {
       toast.error("Please fill in all fields")
     }
 
-    const res = await fetch(`${API_URL}/api/events`, {
+    const res = await fetch(`${API_URL}/api/events?[populate]=*`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({data: {...data}})
     })
 
     if (!res.ok){
+      if (res.status === 403 || res.status === 401){
+        toast.error("No token included")
+        return
+      }
       toast.error('Something went wrong')
     } else {
       const event = await res.json()
-      router.push(`${event.data.attributes.slug}`)
+      router.push(`/events/${event.slug}`)
     }
   }
 
@@ -99,3 +106,13 @@ const AddEventPage = () => {
 }
 
 export default AddEventPage
+
+export const getServerSideProps = async ({ req }) => {
+  const { token } = parseCookies(req)
+
+  return {
+    props: {
+      token
+    }
+  }
+}
