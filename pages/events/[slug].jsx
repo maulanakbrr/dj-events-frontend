@@ -4,6 +4,7 @@ import { FaPencilAlt, FaTimes } from 'react-icons/fa'
 import Link from 'next/link'
 import Image from 'next/image'
 import Layout from "@/components/Layout"
+import EventMap from '@/components/EventMap';
 import { API_URL } from "@/config/index"
 import styles from '@/styles/Event.module.scss'
 import { useRouter } from 'next/router';
@@ -38,6 +39,8 @@ const EventPage = ({evt}) => {
 
         <h3>Venue: {attributes.venue}</h3>
         <p>{attributes.address}</p>
+
+        <EventMap evt={attributes}/>
 
         <Link href="/events">
           <a className={styles.back}>
